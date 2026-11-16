@@ -121,3 +121,23 @@ Invalid operations return HTTP status code `400`.
 - `test_sort_filter.py` — Program used to test the microservice.
 - `README.md` — Instructions and documentation.
 - `.gitignore` — Specifies files Git should ignore.
+
+
+
+## UML Sequence Diagram
+
+The diagram below shows how the test program communicates with the Sort & Filter Microservice using HTTP requests and JSON responses.
+
+```mermaid
+sequenceDiagram
+    participant Test as Test Program
+    participant Service as Sort & Filter Microservice
+
+    Test->>Service: POST /process (JSON request)
+    activate Service
+    Note right of Service: Validate request and sort or filter records
+    Service-->>Test: HTTP 200 OK (JSON records)
+    deactivate Service
+    Note over Test: Read response.json() and display results
+```
+

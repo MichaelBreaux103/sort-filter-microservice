@@ -58,7 +58,9 @@ def filter_records(records, field, value):
 def process_records():
     """Receive a JSON request and return sorted or filtered records."""
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"error": "Request body must be JSON."}), 400
 
     operation = data.get("operation")
     records = data.get("records", [])
@@ -66,17 +68,24 @@ def process_records():
     order = data.get("order", "ascending")
     value = data.get("value")
 
-    # Perform the requested operation
-    if operation == "sort":
-        result = sort_records(records, field, order)
+    if not isinstance(records, list):
+        return jsonify({"error": "records must be a list of objects."}), 400
+    if not field:
+        return jsonify({"error": "field is required, like \"date\"."}), 400
 
-    elif operation == "filter":
-        result = filter_records(records, field, value)
+    try:
+        if operation == "sort":
+            for record in records:
+                if field not in record:
+                    return jsonify({"error": "Field '" + field + "' was not found in the records."}), 400
+            result = sort_records(records, field, order)
+        elif operation == "filter":
+            result = filter_records(records, field, value)
+        else:
+            return jsonify({"error": "Invalid operation. Use \"sort\" or \"filter\"."}), 400
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid value in field '" + field + "'. Dates must look like 2026-11-08 and grades like V5."}), 400
 
-    else:
-        return jsonify({"error": "Invalid operation"}), 400
-
-    # Return the processed records as JSON
     return jsonify({"records": result}), 200
 
 

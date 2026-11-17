@@ -68,6 +68,13 @@ def main():
         "records": sessions
     })
 
+    # Test 4: Invalid request
+    send_request("Invalid Request", {
+        "operation": "sort",
+        "field": "difficulty",
+        "records": [{"grade": "V5"}]
+    })
+
 
 if __name__ == "__main__":
     main()
